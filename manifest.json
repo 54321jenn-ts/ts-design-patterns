@@ -1,9 +1,9 @@
 {
-    "name": "Design Patterns",
-    "description": "A React data app with design patterns to help you get started building Tetra Data Apps.",
+    "name": "TetraScience",
+    "description": "A prototype of the Tetra Scientist Experience",
     "namespace": "private-training-onboarding",
     "slug": "ts-pattern-app",
-    "version": "v1.1.0",
+    "version": "v4.5.0",
     "icon": "images/icon.png",
     "type": "connector",
     "labels": [

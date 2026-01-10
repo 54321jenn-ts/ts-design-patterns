@@ -1,6 +1,6 @@
 {
-  "name": "@ts-design-patterns/client",
-  "description": "Design Patterns app using React template and TetraScience's Component Library",
+  "name": "@ts-tdp-sci-ux/client",
+  "description": "Tetra Scientist Experience",
   "private": true,
   "version": "0.1.0",
   "type": "module",

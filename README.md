@@ -1,4 +1,4 @@
-#  TetraScience Design Patterns <!-- omit in toc -->
+#  Tetra Data Platform Scientist Experience <!-- omit in toc -->
 ## Generated from TS-CLI React Template
 
 This app was generated from the TetraScience CLI React template and uses the TetraScience Component Library and custom styling to demonstrate design patterns and best practices.
@@ -19,7 +19,7 @@ v1.1.0
 
 ## Summary
 
-_Design patterns and examples using TetraScience React UI components._
+_Prototype of the Tetra Data Platform Scientist Experience_
 
 ## Input
 

@@ -1,6 +1,6 @@
 {
-  "name": "ts-design-patterns",
-  "description": "Design patterns and examples using TetraScience React UI components",
+  "name": "ts-tdp-sci-ux",
+  "description": "Prototype of the scientist experience in Tetra Data Platform",
   "private": true,
   "version": "0.1.0",
   "type": "module",

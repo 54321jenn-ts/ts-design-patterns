@@ -11,13 +11,13 @@
 .sidebar-wrapper {
   transition: width 0.3s ease-in-out;
   z-index: 1000;
-  background-color: #ffffff;
+  background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   width: 180px;
   overflow: visible;
   flex-shrink: 0;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid var(--border-color);
 }
 
 .sidebar-wrapper.collapsed {
@@ -30,21 +30,21 @@
   top: 1rem;
   left: 1rem;
   z-index: 1100;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.75rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
 }
 
 .mobile-menu-button:hover {
-  background-color: #f5f5f5;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--hover-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .mobile-menu-button:active {
@@ -52,7 +52,7 @@
 }
 
 .mobile-menu-button svg {
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* Mobile Overlay */
@@ -81,7 +81,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #ffffff;
+  background-color: var(--bg-primary);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -94,8 +94,8 @@
   min-height: 0;
 }
 
-/* Desktop Styles (default) */
-@media (min-width: 768px) {
+/* Desktop and Tablet Styles - Sidebar always visible */
+@media (min-width: 480px) {
   .sidebar-wrapper {
     position: relative;
   }
@@ -109,31 +109,15 @@
   }
 }
 
-/* Tablet Styles */
-@media (max-width: 767px) and (min-width: 481px) {
-  .sidebar-wrapper.mobile-closed {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    transform: translateX(-100%);
-  }
-
-  .sidebar-wrapper.mobile-open {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    transform: translateX(0);
-  }
-
+/* Tablet - Auto-collapse sidebar */
+@media (max-width: 1023px) and (min-width: 480px) {
   .page-content {
-    padding: 1.5rem;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
   }
 }
 
-/* Mobile Styles */
-@media (max-width: 480px) {
+/* Mobile Styles - Hide sidebar, show hamburger menu */
+@media (max-width: 479px) {
   .sidebar-wrapper.mobile-closed {
     position: fixed;
     left: 0;
@@ -151,8 +135,11 @@
   }
 
   .main-content {
-    padding: 1rem;
     margin-left: 0;
+  }
+
+  .page-content {
+    padding: 1rem;
   }
 
   .mobile-menu-button {

@@ -4,8 +4,8 @@ import '@tetrascience-npm/tetrascience-react-ui/index.css';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import DataTablePage from './pages/DataTablePage';
-import FormsPage from './pages/FormsPage';
-import ChartsPage from './pages/ChartsPage';
+import SearchPage from './pages/SearchPage';
+import AppsPage from './pages/AppsPage';
 import ContributingPage from './pages/ContributingPage';
 
 function App() {
@@ -15,8 +15,8 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="data-table" element={<DataTablePage />} />
-          <Route path="forms" element={<FormsPage />} />
-          <Route path="charts" element={<ChartsPage />} />
+          <Route path="search" element={<SearchPage />} />
+          <Route path="apps" element={<AppsPage />} />
           <Route path="contributing" element={<ContributingPage />} />
         </Route>
       </Routes>

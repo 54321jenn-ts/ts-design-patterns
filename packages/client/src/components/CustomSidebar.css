@@ -1,10 +1,10 @@
 .custom-sidebar {
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: var(--sidebar-bg);
   height: 100%;
   padding: 0;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid var(--border-color);
 }
 
 .custom-sidebar:not(.collapsed) {
@@ -16,9 +16,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 46px;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  height: 60px;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
@@ -26,28 +26,23 @@
 }
 
 .sidebar-header:hover {
-  background-color: #f9fafb;
+  background-color: var(--hover-bg);
 }
 
-.sidebar-title {
-  margin: 0;
-  color: #1a1a1a;
-  font-size: 1.25rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-align: center;
-  line-height: 1.2;
+.sidebar-logo {
+  height: 60px;
+  width: auto;
   max-width: 100%;
-  word-wrap: break-word;
+  object-fit: contain;
 }
 
 .sidebar-header-collapsed {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 46px;
-  padding: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  height: 60px;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
@@ -55,12 +50,12 @@
 }
 
 .sidebar-header-collapsed:hover {
-  background-color: #f9fafb;
+  background-color: var(--hover-bg);
 }
 
 .sidebar-icon {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   filter: none;
 }
@@ -75,7 +70,7 @@
   border: none;
   outline: none;
   border-radius: 0;
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -94,13 +89,13 @@
 }
 
 .sidebar-item:hover {
-  background-color: #f9fafb;
-  color: #1f2937;
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .sidebar-item.active {
-  background-color: #f3f4f6;
-  color: #1f2937;
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .sidebar-item-icon {
@@ -127,8 +122,8 @@
   margin-top: auto;
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-align: center;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border-color);
 }
 

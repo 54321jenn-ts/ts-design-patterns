@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@tetrascience-npm/tetrascience-react-ui';
-import '@tetrascience-npm/tetrascience-react-ui/index.css';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import CodeBlock from '../components/CodeBlock';

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import './Layout.css';
-import Breadcrumbs from './Breadcrumbs';
 import Toolbar from './Toolbar';
+import SecondaryToolbar from './SecondaryToolbar';
 import CustomSidebar from './CustomSidebar';
 
 // Define sidebar items based on the app's routes
@@ -15,23 +15,18 @@ const sidebarItems = [
   },
   {
     icon: 'database',
-    label: 'Data Table',
+    label: 'My Data',
     path: '/data-table',
   },
   {
-    icon: 'pencil',
-    label: 'Forms',
-    path: '/forms',
+    icon: 'search',
+    label: 'Search',
+    path: '/search',
   },
   {
-    icon: 'pie-chart',
-    label: 'Charts & Graphs',
-    path: '/charts',
-  },
-  {
-    icon: 'cube',
-    label: 'Contributing',
-    path: '/contributing',
+    icon: 'apps',
+    label: 'Apps',
+    path: '/apps',
   },
 ];
 
@@ -41,16 +36,32 @@ function Layout() {
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  // Check if we're on mobile
+  // Check if we're on mobile (only phones, not tablets)
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 480);
     };
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-collapse sidebar on tablet breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 480 && window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true);
+      } else if (window.innerWidth >= 1024) {
+        setIsSidebarCollapsed(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Close mobile menu when route changes
@@ -114,8 +125,8 @@ function Layout() {
           isSidebarCollapsed={isSidebarCollapsed}
           onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
+        {location.pathname !== '/' && <SecondaryToolbar />}
         <div className="page-content">
-          <Breadcrumbs />
           <Outlet />
         </div>
       </div>

@@ -7,9 +7,9 @@ interface BreadcrumbItem {
 }
 
 const routeLabels: Record<string, string> = {
-  'data-table': 'Data Table',
-  'forms': 'Forms',
-  'charts': 'Charts & Graphs',
+  'data-table': 'My Data',
+  'search': 'Search',
+  'apps': 'Apps',
   'ui-components': 'UI Components',
 };
 

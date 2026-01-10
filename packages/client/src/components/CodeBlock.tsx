@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighterBase } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import './CodeBlock.css';
+
+// Type assertion to fix TypeScript compatibility issue
+const SyntaxHighlighter = SyntaxHighlighterBase as any;
 
 interface CodeBlockProps {
   code: string;

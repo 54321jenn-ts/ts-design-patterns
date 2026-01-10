@@ -1,61 +1,139 @@
-import { useNavigate } from 'react-router-dom';
 import { Card } from '@tetrascience-npm/tetrascience-react-ui';
-import '@tetrascience-npm/tetrascience-react-ui/index.css';
+import { Link } from 'react-router-dom';
+import './HomePage.css';
+
+// Icon components
+const StarIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+  </svg>
+);
+
+const FileIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+  </svg>
+);
+
+const ExcelIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z" />
+    <path d="M9.5 14l1.5-2.5L9.5 9h1.75l.75 1.5.75-1.5h1.75L13 11.5l1.5 2.5h-1.75l-.75-1.5-.75 1.5H9.5z" />
+  </svg>
+);
+
+const GridIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" />
+  </svg>
+);
+
+const MoreIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+  </svg>
+);
+
+interface CardItem {
+  icon: JSX.Element;
+  title: string;
+  subtitle: string;
+}
 
 function HomePage() {
-  const navigate = useNavigate();
-
-  const cards = [
+  const recommendedApps: CardItem[] = [
     {
-      title: 'Data Table',
-      description: 'Explore the powerful Table component with sample user data. Features include sortable columns, custom widths, and responsive design.',
-      path: '/data-table',
+      icon: <StarIcon />,
+      title: 'Chromatography insights',
+      subtitle: 'v1.2',
     },
     {
-      title: 'Form',
-      description: 'Discover form controls including buttons, inputs, checkboxes, toggles, dropdowns, and textareas. All components are fully interactive.',
-      path: '/forms',
+      icon: <StarIcon />,
+      title: 'Purification insights',
+      subtitle: 'v2.1',
     },
     {
-      title: 'Charts & Graphs',
-      description: 'Visualize data with various chart types: line graphs, bar charts, pie charts, scatter plots, and area graphs. All powered by Plotly.',
-      path: '/charts',
-    },
-    {
-      title: 'Contributing Guide',
-      description: 'Contribute to this project with step-by-step instructions, code examples, and best practices for submitting pull requests.',
-      path: '/contributing',
+      icon: <GridIcon />,
+      title: 'CRO Connect',
+      subtitle: 'v1.3.8',
     },
   ];
 
-  return (
-    <div className="app-container">
-      <h3>Welcome!</h3>
-      <p className="page-description">
-        Explore design patterns and examples using TetraScience React UI components.
-      </p>
+  const savedSearches: CardItem[] = [
+    {
+      icon: <SearchIcon />,
+      title: 'All data for proteomics study 3',
+      subtitle: 'This morning',
+    },
+    {
+      icon: <SearchIcon />,
+      title: 'Mass spec data for Sample#97',
+      subtitle: '3 months',
+    },
+    {
+      icon: <SearchIcon />,
+      title: 'All my data',
+      subtitle: 'Last month',
+    },
+  ];
 
-      <div className="demo-grid">
-        {cards.map((card) => (
-          <div
-            key={card.path}
-            className="clickable-card"
-            onClick={() => navigate(card.path)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                navigate(card.path);
-              }
-            }}
-          >
-            <Card>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
-            </Card>
-          </div>
-        ))}
+  const recentData: CardItem[] = [
+    {
+      icon: <GridIcon />,
+      title: 'Data set',
+      subtitle: 'Today',
+    },
+    {
+      icon: <FileIcon />,
+      title: 'File name',
+      subtitle: 'Yesterday',
+    },
+    {
+      icon: <ExcelIcon />,
+      title: 'Excel file name',
+      subtitle: 'Yesterday',
+    },
+  ];
+
+  const renderSection = (title: string, items: CardItem[], viewAllLink: string) => (
+    <div className="home-section">
+      <div className="section-header">
+        <h3>{title}</h3>
+      </div>
+      <Card className="section-card">
+        <div className="section-card-content">
+          {items.map((item, index) => (
+            <div key={index} className="list-item">
+              <div className="card-icon">{item.icon}</div>
+              <div className="card-text">
+                <div className="card-title">{item.title}</div>
+                <div className="card-subtitle">{item.subtitle}</div>
+              </div>
+              <button className="card-menu-btn" aria-label="More options">
+                <MoreIcon />
+              </button>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <Link to={viewAllLink} className="view-all-link">View All</Link>
+    </div>
+  );
+
+  return (
+    <div className="home-page">
+      <h1 className="welcome-title">Welcome, Marie Curie!</h1>
+
+      <div className="home-sections">
+        {renderSection('Recommend Apps', recommendedApps, '/apps')}
+        {renderSection('Saved Searches', savedSearches, '/search')}
+        {renderSection('Recent Data', recentData, '/data-table')}
       </div>
     </div>
   );
