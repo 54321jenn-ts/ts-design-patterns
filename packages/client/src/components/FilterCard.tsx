@@ -74,6 +74,8 @@ const SearchIcon = () => (
   </svg>
 );
 
+
+
 function FilterCard({ onClose, onSearch }: FilterCardProps) {
   const [fileName, setFileName] = useState('');
   const [createdOn, setCreatedOn] = useState('');
@@ -99,11 +101,75 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
   const [filterName, setFilterName] = useState('');
   const [editingFilter, setEditingFilter] = useState<string | null>(null);
   const [filterToDelete, setFilterToDelete] = useState<string | null>(null);
-  const [currentFilterName, setCurrentFilterName] = useState<string>('New Filter');
+  const [currentFilterName, setCurrentFilterName] = useState<string>('Filters');
   const [isModified, setIsModified] = useState(false);
   const [savedState, setSavedState] = useState<{order: string[], values: any} | null>(null);
   const [toast, setToast] = useState<{message: string, visible: boolean, fadeOut: boolean}>({message: '', visible: false, fadeOut: false});
+  const [isCreatingNewFilter, setIsCreatingNewFilter] = useState(false);
   const loadDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load shared filter from URL on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedFilter = urlParams.get('filter');
+
+    if (sharedFilter) {
+      try {
+        const filterState = JSON.parse(decodeURIComponent(sharedFilter));
+
+        // Apply the shared filter
+        setFilterOrder(filterState.order || []);
+        setCurrentFilterName(filterState.name || 'Shared Filter');
+        setIsCreatingNewFilter(false);
+
+        // Apply all the filter values
+        const values = filterState.values || {};
+        setFileName(values.fileName || '');
+        setCreatedOn(values.createdOn || '');
+        setCreatedBetweenStart(values.createdBetweenStart || '');
+        setCreatedBetweenEnd(values.createdBetweenEnd || '');
+        setCreatedBetweenLabel(values.createdBetweenLabel || 'Created between');
+        setInstrument(values.instrument || '');
+        setSoftware(values.software || '');
+        setModifiedBetweenStart(values.modifiedBetweenStart || '');
+        setModifiedBetweenEnd(values.modifiedBetweenEnd || '');
+        setModifiedOn(values.modifiedOn || '');
+        setTags(values.tags || '');
+        setType(values.type || '');
+
+        // Save the state for comparison - this prevents showing "modified" immediately
+        setSavedState({
+          order: filterState.order || [],
+          values: {
+            fileName: values.fileName || '',
+            createdOn: values.createdOn || '',
+            createdBetweenStart: values.createdBetweenStart || '',
+            createdBetweenEnd: values.createdBetweenEnd || '',
+            createdBetweenLabel: values.createdBetweenLabel || 'Created between',
+            instrument: values.instrument || '',
+            software: values.software || '',
+            modifiedBetweenStart: values.modifiedBetweenStart || '',
+            modifiedBetweenEnd: values.modifiedBetweenEnd || '',
+            modifiedOn: values.modifiedOn || '',
+            tags: values.tags || '',
+            type: values.type || '',
+          }
+        });
+        setIsModified(false);
+
+        // Clean up the URL by removing the filter parameter
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('filter');
+        window.history.replaceState({}, '', newUrl.toString());
+
+        // Show a toast notification
+        setToast({message: `Loaded shared filter: "${filterState.name || 'Shared Filter'}"`, visible: true, fadeOut: false});
+      } catch (error) {
+        console.error('Failed to parse shared filter:', error);
+        setToast({message: 'Invalid shared filter link', visible: true, fadeOut: false});
+      }
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   // Toast auto-hide with fade-out
   useEffect(() => {
@@ -411,15 +477,22 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
 
   const handleOpenSaveModal = () => {
     // Pre-fill with current filter name (or empty for new filter)
-    setFilterName(currentFilterName === 'New Filter' ? '' : currentFilterName);
+    setFilterName((currentFilterName === 'Filters' || isCreatingNewFilter) ? '' : currentFilterName);
     setShowSaveModal(true);
+  };
+
+  const handleCloseSaveModal = () => {
+    setShowSaveModal(false);
+    setFilterName('');
+    setEditingFilter(null);
   };
 
   const handleSaveFilterFromModal = () => {
     if (!filterName.trim()) return;
 
     const newName = filterName.trim();
-    const oldName = currentFilterName;
+    // If we're editing a filter name, use editingFilter; otherwise use currentFilterName for saving changes
+    const oldName = editingFilter || currentFilterName;
 
     const filterData = {
       name: newName,
@@ -446,7 +519,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     // Check if we're updating an existing filter or creating a new one
     const existingFilterIndex = savedFilters.findIndex(f => f.name === oldName);
 
-    if (existingFilterIndex !== -1 && oldName !== 'New Filter') {
+    if (existingFilterIndex !== -1 && oldName !== 'Filters' && oldName !== 'Create filter') {
       // Updating existing filter
       if (newName === oldName) {
         // Same name - just update the filter
@@ -479,7 +552,13 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     setSavedFilters(updatedFilters);
     localStorage.setItem('savedFilters', JSON.stringify(updatedFilters));
 
-    setCurrentFilterName(newName);
+    // Update current filter name in these cases:
+    // 1. Creating a new filter (no editingFilter)
+    // 2. Editing the currently loaded filter's name
+    // 3. Saving changes to the current filter
+    if (!editingFilter || editingFilter === currentFilterName || oldName === currentFilterName) {
+      setCurrentFilterName(newName);
+    }
 
     // Update saved state
     setSavedState({
@@ -501,8 +580,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     });
     setIsModified(false);
 
-    setShowSaveModal(false);
-    setFilterName('');
+    handleCloseSaveModal();
     setToast({message, visible: true, fadeOut: false});
   };
 
@@ -526,9 +604,10 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
       setModifiedOn('');
       setTags('');
       setType('');
-      setCurrentFilterName('New Filter');
+      setCurrentFilterName('Filters');
       setSavedState(null);
       setIsModified(false);
+      setIsCreatingNewFilter(false);
     }
 
     setFilterToDelete(null);
@@ -549,6 +628,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     // Reset to only the saved filters
     setFilterOrder(filterData.order);
     setCurrentFilterName(filterData.name);
+    setIsCreatingNewFilter(false);
 
     // Clear all values first
     setFileName('');
@@ -947,15 +1027,16 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     <div className="filter-card">
       <div className="filter-card-top-bar">
         <div className="filter-card-title-wrapper">
-          <div className="filter-load-dropdown-wrapper" ref={loadDropdownRef}>
-            <button
-              className="filter-title-dropdown-btn"
-              onClick={() => setShowLoadDropdown(!showLoadDropdown)}
-              disabled={savedFilters.length === 0}
-            >
-              <h2 className="filter-card-title">{currentFilterName}</h2>
-              {savedFilters.length > 0 && <ChevronDownIcon />}
-            </button>
+          {(filterOrder.length > 0 || isCreatingNewFilter) && (
+            <div className="filter-load-dropdown-wrapper" ref={loadDropdownRef}>
+              <button
+                className="filter-title-dropdown-btn"
+                onClick={() => setShowLoadDropdown(!showLoadDropdown)}
+                disabled={savedFilters.length === 0}
+              >
+                <h2 className="filter-card-title">{currentFilterName}</h2>
+                {savedFilters.length > 0 && <ChevronDownIcon />}
+              </button>
             {showLoadDropdown && (
               <div className="filter-load-dropdown">
                 {savedFilters.map(filter => (
@@ -970,6 +1051,17 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
                       <span className="filter-load-item-title">{filter.name}</span>
                     </button>
                     <div className="filter-load-item-actions">
+                      <button
+                        className="filter-load-item-edit"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateFilter(filter.name);
+                        }}
+                        title="Edit filter name"
+                        aria-label="Edit filter name"
+                      >
+                        <EditIcon />
+                      </button>
                       <button
                         className="filter-load-item-delete"
                         onClick={(e) => {
@@ -1002,24 +1094,26 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
                       setModifiedOn('');
                       setTags('');
                       setType('');
-                      setCurrentFilterName('New Filter');
+                      setCurrentFilterName('Create filter');
                       setSavedState(null);
                       setIsModified(false);
+                      setIsCreatingNewFilter(true);
                       setShowLoadDropdown(false);
                     }}
                   >
-                    <span className="filter-load-item-title">New Filter</span>
+                    <span className="filter-load-item-title">Create Filter</span>
                   </button>
                 </div>
               </div>
             )}
-          </div>
-          {filterOrder.length > 0 && (isModified || currentFilterName === 'New Filter') && (
+            </div>
+          )}
+          {((filterOrder.length > 0 && isModified) || isCreatingNewFilter) && (
             <button
               className="filter-card-modified-icon"
               onClick={handleOpenSaveModal}
-              data-tooltip={currentFilterName === 'New Filter' ? 'Save filter' : 'Save changes'}
-              aria-label={currentFilterName === 'New Filter' ? 'Save filter' : 'Save changes'}
+              data-tooltip={isCreatingNewFilter ? 'Save filter' : 'Save changes'}
+              aria-label={isCreatingNewFilter ? 'Save filter' : 'Save changes'}
             >
               <SaveIcon />
             </button>
@@ -1035,41 +1129,167 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
       </div>
 
       <div className="filter-fields">
-        {filterOrder.length === 0 ? (
+        {filterOrder.length === 0 && !isCreatingNewFilter ? (
           <div className="filter-empty-state">
-            <h3 className="filter-empty-title">No filters applied</h3>
-            <p className="filter-empty-subtitle">Add filters to refine your search results</p>
-            {availableFilters.length > 0 && (
-              <div className="filter-empty-add">
-                <div className="filter-select">
-                  <select
-                    className="filter-select-input"
-                    value=""
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        addFilter(e.target.value);
-                      }
-                    }}
-                  >
-                    <option value="">Add a filter</option>
-                    {availableFilters.map(filter => (
-                      <option key={filter.value} value={filter.value}>
-                        {filter.label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDownIcon />
+            {isCreatingNewFilter ? (
+              /* Create new filter empty state */
+              <>
+                <h2 className="filter-empty-title">New Filter</h2>
+                <p className="filter-empty-subtitle">Select filters</p>
+
+                <div className="filter-empty-actions">
+                  {availableFilters.length > 0 && (
+                    <div className="filter-empty-add">
+                      <div className="filter-select">
+                        <select
+                          className="filter-select-input"
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              addFilter(e.target.value);
+                              setIsCreatingNewFilter(false);
+                            }
+                          }}
+                        >
+                          <option value="">Select filters</option>
+                          {availableFilters.map(filter => (
+                            <option key={filter.value} value={filter.value}>
+                              {filter.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDownIcon />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              </>
+            ) : (
+              /* Regular empty state */
+              <>
+                <h2 className="filter-empty-title">Filters</h2>
+                <p className="filter-empty-subtitle">Select a saved filter or create a new one</p>
+
+                <div className="filter-empty-actions">
+                  {savedFilters.length > 0 ? (
+                    <>
+                      {/* Primary action: Select saved filter */}
+                      <div className="filter-empty-add">
+                        <div className="filter-select">
+                          <select
+                            className="filter-select-input"
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                const selectedFilter = savedFilters.find(f => f.name === e.target.value);
+                                if (selectedFilter) {
+                                  handleLoadFilter(selectedFilter);
+                                  setIsCreatingNewFilter(false);
+                                }
+                              }
+                            }}
+                          >
+                            <option value="">Select saved filter</option>
+                            {savedFilters.map(filter => (
+                              <option key={filter.name} value={filter.name}>
+                                {filter.name}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDownIcon />
+                        </div>
+                      </div>
+
+                      {/* Secondary action: Create new filter text link */}
+                      {availableFilters.length > 0 && (
+                        <div className="filter-empty-secondary">
+                          <button
+                            className="filter-create-new-link"
+                            onClick={() => {
+                              // Reset to new filter state
+                              setFilterOrder([]);
+                              setFileName('');
+                              setCreatedOn('');
+                              setCreatedBetweenStart('');
+                              setCreatedBetweenEnd('');
+                              setCreatedBetweenLabel('Created between');
+                              setInstrument('');
+                              setSoftware('');
+                              setModifiedBetweenStart('');
+                              setModifiedBetweenEnd('');
+                              setModifiedOn('');
+                              setTags('');
+                              setType('');
+                              setCurrentFilterName('Create filter');
+                              setSavedState(null);
+                              setIsModified(false);
+                              setIsCreatingNewFilter(true);
+                            }}
+                          >
+                            Create new filter
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    /* No saved filters: Create new filter is primary action */
+                    availableFilters.length > 0 && (
+                      <div className="filter-empty-add">
+                        <div className="filter-select">
+                          <select
+                            className="filter-select-input"
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                // Reset to new filter state first
+                                setFilterOrder([]);
+                                setFileName('');
+                                setCreatedOn('');
+                                setCreatedBetweenStart('');
+                                setCreatedBetweenEnd('');
+                                setCreatedBetweenLabel('Created between');
+                                setInstrument('');
+                                setSoftware('');
+                                setModifiedBetweenStart('');
+                                setModifiedBetweenEnd('');
+                                setModifiedOn('');
+                                setTags('');
+                                setType('');
+                                setCurrentFilterName('Create filter');
+                                setSavedState(null);
+                                setIsModified(false);
+                                setIsCreatingNewFilter(true);
+                                // Then add the selected filter
+                                addFilter(e.target.value);
+                              }
+                            }}
+                          >
+                            <option value="">Create new filter</option>
+                            {availableFilters.map(filter => (
+                              <option key={filter.value} value={filter.value}>
+                                {filter.label}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDownIcon />
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </>
             )}
           </div>
+        ) : isCreatingNewFilter && filterOrder.length === 0 ? (
+          /* Creating new filter with no criteria yet - show nothing, just the Add filter dropdown below */
+          <div></div>
         ) : (
           <div className="filter-grid">
             {filterOrder.map(filterName => renderFilterField(filterName))}
           </div>
         )}
 
-        {filterOrder.length > 0 && availableFilters.length > 0 && (
+        {((filterOrder.length > 0 && availableFilters.length > 0) || (isCreatingNewFilter && filterOrder.length === 0 && availableFilters.length > 0)) && (
           <div className="filter-add-row">
             <div className="filter-select">
               <select
@@ -1105,13 +1325,13 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
 
       {/* Save Filter Modal */}
       {showSaveModal && (
-        <div className="modal-overlay" onClick={() => setShowSaveModal(false)}>
+        <div className="modal-overlay" onClick={handleCloseSaveModal}>
           <div className="modal-content modal-content-small" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">Save Filter</h2>
+              <h2 className="modal-title">{editingFilter ? 'Edit Filter Name' : 'Save Filter'}</h2>
               <button
                 className="modal-close"
-                onClick={() => setShowSaveModal(false)}
+                onClick={handleCloseSaveModal}
                 aria-label="Close modal"
               >
                 <CloseIcon />
@@ -1136,7 +1356,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
             <div className="modal-footer">
               <button
                 className="modal-btn-cancel"
-                onClick={() => setShowSaveModal(false)}
+                onClick={handleCloseSaveModal}
               >
                 Cancel
               </button>
@@ -1145,7 +1365,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
                 onClick={handleSaveFilterFromModal}
                 disabled={!filterName.trim()}
               >
-                Save
+                {editingFilter ? 'Update' : 'Save'}
               </button>
             </div>
           </div>
