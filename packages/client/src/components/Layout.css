@@ -95,13 +95,15 @@
 }
 
 /* When assistant is open, push toolbar content left */
-.main-content:has(.assistant-open) .toolbar-content {
+.main-content:has(.assistant-open) .toolbar-content,
+.main-content:has(.search-assistant.open) .toolbar-content {
   margin-right: 400px;
   transition: margin-right 0.3s ease-in-out;
 }
 
 @media (max-width: 900px) {
-  .main-content:has(.assistant-open) .toolbar-content {
+  .main-content:has(.assistant-open) .toolbar-content,
+  .main-content:has(.search-assistant.open) .toolbar-content {
     margin-right: 0;
   }
 }

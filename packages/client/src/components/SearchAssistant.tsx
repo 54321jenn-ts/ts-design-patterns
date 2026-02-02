@@ -94,7 +94,7 @@ function SearchAssistant({ isOpen, onClose, onBuildFilters, onAddFilter, activeF
       const assistantMessage: Message = {
         id: Date.now().toString(),
         type: 'assistant',
-        content: `I've removed "${displayName}" from your filters. Would you like to add another filter?`,
+        content: `You've removed "${displayName}" from your filters. Would you like to add another filter?`,
         suggestions: availableFilters,
       };
 
