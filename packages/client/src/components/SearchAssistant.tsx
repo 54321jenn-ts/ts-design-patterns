@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SearchAssistant.css';
 
 const CloseIcon = () => (
@@ -41,11 +42,21 @@ interface SuggestionPill {
   action: () => void;
 }
 
+interface RecentDataItem {
+  id: string;
+  name: string;
+  type: 'raw' | 'ids' | 'processed';
+  instrument: string;
+  processedAt: string;
+  size: string;
+}
+
 interface Message {
   id: string;
   type: 'user' | 'assistant';
   content: string;
   suggestions?: string[];
+  recentData?: RecentDataItem[];
 }
 
 const ALL_FILTERS = ['File name', 'Created date', 'Instrument', 'Software', 'Tags', 'File type'];
@@ -74,6 +85,7 @@ function SearchAssistant({ isOpen, onClose, onBuildFilters, onAddFilter, activeF
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -217,6 +229,69 @@ function SearchAssistant({ isOpen, onClose, onBuildFilters, onAddFilter, activeF
     }
   };
 
+  const handleFindRecentData = () => {
+    // Dummy recent data
+    const recentData: RecentDataItem[] = [
+      {
+        id: '1',
+        name: 'proteomics_study3_sample_001.raw',
+        type: 'raw',
+        instrument: 'Thermo Q Exactive HF',
+        processedAt: '2 minutes ago',
+        size: '1.2 GB',
+      },
+      {
+        id: '2',
+        name: 'proteomics_study3_sample_001.ids',
+        type: 'ids',
+        instrument: 'Thermo Q Exactive HF',
+        processedAt: '2 minutes ago',
+        size: '45 MB',
+      },
+      {
+        id: '3',
+        name: 'cell_culture_batch_42.csv',
+        type: 'processed',
+        instrument: 'Agilent 1290 Infinity II',
+        processedAt: '15 minutes ago',
+        size: '2.3 MB',
+      },
+      {
+        id: '4',
+        name: 'mass_spec_run_2024_01_15.raw',
+        type: 'raw',
+        instrument: 'Waters Xevo G2-XS',
+        processedAt: '1 hour ago',
+        size: '890 MB',
+      },
+      {
+        id: '5',
+        name: 'chromatography_analysis_final.json',
+        type: 'processed',
+        instrument: 'Agilent 1290 Infinity II',
+        processedAt: '2 hours ago',
+        size: '156 KB',
+      },
+    ];
+
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: 'Find my recent data',
+    };
+
+    // Add assistant response with recent data
+    const assistantMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      type: 'assistant',
+      content: 'Here\'s your recently processed data:',
+      recentData: recentData,
+    };
+
+    setMessages(prev => [...prev, userMessage, assistantMessage]);
+  };
+
   const suggestionPills: SuggestionPill[] = [
     {
       id: 'build-filters',
@@ -231,9 +306,7 @@ function SearchAssistant({ isOpen, onClose, onBuildFilters, onAddFilter, activeF
     {
       id: 'find-data',
       label: 'Find my recent data',
-      action: () => {
-        console.log('Find recent data');
-      },
+      action: handleFindRecentData,
     },
   ];
 
@@ -316,6 +389,54 @@ function SearchAssistant({ isOpen, onClose, onBuildFilters, onAddFilter, activeF
                 )}
                 <div className="message-content">
                   <p>{message.content}</p>
+                  {message.recentData && message.recentData.length > 0 && (
+                    <div className="recent-data-list">
+                      {message.recentData.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className={`recent-data-item ${index === 0 ? 'clickable' : ''}`}
+                          onClick={index === 0 ? () => navigate(`/details/${item.id}`) : undefined}
+                          role={index === 0 ? 'button' : undefined}
+                          tabIndex={index === 0 ? 0 : undefined}
+                        >
+                          <div className="recent-data-icon">
+                            {item.type === 'raw' && (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                              </svg>
+                            )}
+                            {item.type === 'ids' && (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                              </svg>
+                            )}
+                            {item.type === 'processed' && (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <polyline points="9 15 12 18 15 15"></polyline>
+                                <line x1="12" y1="12" x2="12" y2="18"></line>
+                              </svg>
+                            )}
+                          </div>
+                          <div className="recent-data-info">
+                            <div className="recent-data-name">{item.name}</div>
+                            <div className="recent-data-meta">
+                              <span className="recent-data-instrument">{item.instrument}</span>
+                              <span className="recent-data-separator">·</span>
+                              <span className="recent-data-size">{item.size}</span>
+                              <span className="recent-data-separator">·</span>
+                              <span className="recent-data-time">{item.processedAt}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {message.suggestions && message.suggestions.length > 0 && (
                     <div className="message-suggestions">
                       {message.suggestions.map((suggestion) => (
