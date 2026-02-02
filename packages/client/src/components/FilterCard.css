@@ -204,6 +204,11 @@
   }
 }
 
+/* Single column layout when assistant is open */
+.assistant-open .filter-grid {
+  grid-template-columns: 1fr;
+}
+
 .filter-field-group {
   display: flex;
   flex-direction: column;
